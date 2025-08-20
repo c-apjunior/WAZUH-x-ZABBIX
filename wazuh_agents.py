@@ -4,9 +4,12 @@ import json
 import argparse
 
 # Configurações
-API_URL = "https://192.168.109.49:55000"
-USERNAME = "wazuh-wui"
-PASSWORD = "MyS3cr37P450r.*-"
+API_URL = "https://x.x.x.x:55000"
+
+#Usuário e senha da API 
+
+USERNAME = ""
+PASSWORD = ""
 
 # Desativa warnings de SSL
 requests.packages.urllib3.disable_warnings()
@@ -64,4 +67,5 @@ if __name__ == "__main__":
     if args.agent:
         print(build_filtered_agent_info(agents, args.agent))
     else:
+
         print(build_lld(agents))
