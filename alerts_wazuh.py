@@ -9,9 +9,12 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configurações
-WAZUH_INDEXER_URL = "https://192.168.109.49:9200/wazuh-alerts-4.x-*/_search"
-USERNAME = "api_zabbix"
-PASSWORD = "TI!evd@25"
+WAZUH_INDEXER_URL = "https://x.x.x.x.:9200/wazuh-alerts-4.x-*/_search"
+
+## Credencial configurada no Wazuh 
+
+USERNAME = ""
+PASSWORD = ""
 
 # Query para pegar alertas rule.level >= 9 nas últimas 1 hora
 query = {
@@ -71,4 +74,5 @@ def get_recent_alerts():
         }, indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
+
     get_recent_alerts()
