@@ -1,0 +1,202 @@
+{
+    "zabbix_export": {
+        "version": "7.0",
+        "template_groups": [
+            {
+                "uuid": "d361694a9681460187838545bafbd9c3",
+                "name": "Makeone"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "e2cfa3e509214dda9d0e93b6e2cd6ca1",
+                "template": "Template WAZUH x ZABBIX",
+                "name": "Template WAZUH x ZABBIX",
+                "groups": [
+                    {
+                        "name": "Makeone"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "5867e36ebec84faba9a9c2b306900f6c",
+                        "name": "ALERTS_WAZUH",
+                        "type": "EXTERNAL",
+                        "key": "alerts_wazuh.py",
+                        "delay": "5m",
+                        "value_type": "TEXT",
+                        "trends": "0"
+                    },
+                    {
+                        "uuid": "d3dd7b25dc254c1b8ee135763da71e07",
+                        "name": "ALL_AGENTS_WAZUH",
+                        "type": "EXTERNAL",
+                        "key": "wazuh_agents.py",
+                        "delay": "20m",
+                        "value_type": "TEXT",
+                        "trends": "0"
+                    }
+                ],
+                "discovery_rules": [
+                    {
+                        "uuid": "7742ccfb713f47fb8a9533126febcacf",
+                        "name": "Alertas_agents",
+                        "type": "DEPENDENT",
+                        "key": "get_allalerts",
+                        "delay": "0",
+                        "item_prototypes": [
+                            {
+                                "uuid": "9635e6484116431ab56f68fe209fa171",
+                                "name": "{#AGENT_NAME} {#DESCRIPTION}",
+                                "type": "TRAP",
+                                "key": "alerts_level[{#AGENT_NAME},{#ID_ALERTS}]",
+                                "delay": "0",
+                                "value_type": "TEXT",
+                                "trends": "0",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.data[?(@.id==\"{#ID_ALERTS}\")].rule_level"
+                                        ],
+                                        "error_handler": "CUSTOM_VALUE",
+                                        "error_handler_params": "Sem Alertas Detectados"
+                                    },
+                                    {
+                                        "type": "TRIM",
+                                        "parameters": [
+                                            "[\"\"]"
+                                        ]
+                                    }
+                                ],
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "d852ac5990ec4916805793f941e229a6",
+                                        "expression": "last(/Template WAZUH x ZABBIX/alerts_level[{#AGENT_NAME},{#ID_ALERTS}])=10",
+                                        "name": "Alerta Nivel 10 {#AGENT_NAME}:{#DESCRIPTION}",
+                                        "priority": "AVERAGE",
+                                        "manual_close": "YES"
+                                    },
+                                    {
+                                        "uuid": "cab7075a89264a5999bcef71da0e9253",
+                                        "expression": "last(/Template WAZUH x ZABBIX/alerts_level[{#AGENT_NAME},{#ID_ALERTS}])>=11",
+                                        "name": "Alerta Nivel {#RULE_LEVEL} {#AGENT_NAME}:{#DESCRIPTION}",
+                                        "priority": "HIGH"
+                                    }
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "alerts_wazuh.py"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#AGENT_NAME}",
+                                "path": "$.agent_name"
+                            },
+                            {
+                                "lld_macro": "{#DESCRIPTION}",
+                                "path": "$.description"
+                            },
+                            {
+                                "lld_macro": "{#ID_ALERTS}",
+                                "path": "$.id"
+                            },
+                            {
+                                "lld_macro": "{#RULE_LEVEL}",
+                                "path": "$.rule_level"
+                            }
+                        ],
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data[*]"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "bb33dbe6f7c14d258b30ce388ae03d13",
+                        "name": "Status Agents",
+                        "type": "DEPENDENT",
+                        "key": "status_agents",
+                        "delay": "0",
+                        "item_prototypes": [
+                            {
+                                "uuid": "95c5fcabce114774b3b648b0df13d4e4",
+                                "name": "{#AGENT_NAMES}",
+                                "type": "DEPENDENT",
+                                "key": "agent[{#AGENT_NAMES},{#ID_AGENT}]",
+                                "delay": "0",
+                                "value_type": "TEXT",
+                                "trends": "0",
+                                "preprocessing": [
+                                    {
+                                        "type": "JSONPATH",
+                                        "parameters": [
+                                            "$.data[?(@.name_agent=='{#AGENT_NAMES}')].status_agent"
+                                        ]
+                                    },
+                                    {
+                                        "type": "TRIM",
+                                        "parameters": [
+                                            "[\"\"]"
+                                        ]
+                                    }
+                                ],
+                                "master_item": {
+                                    "key": "wazuh_agents.py"
+                                },
+                                "trigger_prototypes": [
+                                    {
+                                        "uuid": "8f3746837ae041738933f7e612e62e22",
+                                        "expression": "last(/Template WAZUH x ZABBIX/agent[{#AGENT_NAMES},{#ID_AGENT}])=\"disconnected\"",
+                                        "name": "{#AGENT_NAMES} se encontra Disconnected",
+                                        "priority": "AVERAGE"
+                                    },
+                                    {
+                                        "uuid": "27bdb4a5d8aa42ca90844bef6adcadb6",
+                                        "expression": "last(/Template WAZUH x ZABBIX/agent[{#AGENT_NAMES},{#ID_AGENT}])=\"pending\"",
+                                        "name": "{#AGENT_NAMES} se encontra Pendente",
+                                        "priority": "WARNING",
+                                        "manual_close": "YES"
+                                    }
+                                ]
+                            }
+                        ],
+                        "master_item": {
+                            "key": "alerts_wazuh.py"
+                        },
+                        "lld_macro_paths": [
+                            {
+                                "lld_macro": "{#AGENT_NAMES}",
+                                "path": "$.name_agent"
+                            },
+                            {
+                                "lld_macro": "{#ID_AGENT}",
+                                "path": "$.agent_id"
+                            },
+                            {
+                                "lld_macro": "{#OS_AGENT}",
+                                "path": "$.os_agent"
+                            },
+                            {
+                                "lld_macro": "{#STATUS_AGENT}",
+                                "path": "$.status_agent"
+                            }
+                        ],
+                        "preprocessing": [
+                            {
+                                "type": "JSONPATH",
+                                "parameters": [
+                                    "$.data[*]"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
