@@ -4,7 +4,7 @@
         "template_groups": [
             {
                 "uuid": "d361694a9681460187838545bafbd9c3",
-                "name": "Makeone"
+                "name": "set_name_here"
             }
         ],
         "templates": [
@@ -14,7 +14,7 @@
                 "name": "Template WAZUH x ZABBIX",
                 "groups": [
                     {
-                        "name": "Makeone"
+                        "name": "set_name_here"
                     }
                 ],
                 "items": [
